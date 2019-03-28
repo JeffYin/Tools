@@ -1,5 +1,5 @@
-set tomcat_target_folder=apache-tomcat-8.5.39
-set tomcat_source_folder=C:\apache-tomcat-8.5.33
+set tomcat_target_folder=C:\apache-tomcat-8.5.39
+set tomcat_source_folder=C:\apache-tomcat-8.5.31
 set license_tomcat_folder="\\trdev-005.srb-es.com\c$\Program Files\Apache Software Foundation\Tomcat 8.5"
 
 REM JDBC drivers
@@ -20,9 +20,11 @@ copy %tomcat_source_folder%\lib\lib %extra_lib_folder%
 REM tomcat-users
 copy %tomcat_source_folder%\conf\tomcat-users.xml %tomcat_target_folder%\conf
 
+REM other configurations
+copy %tomcat_source_folder%\bin\setEnv.bat %tomcat_target_folder%\bin
 
 REM allow remote access
-copy %tomcat_source_folder%\webapps\host-manager\META-INF\context.xml %tomcat_target_folder%\webapps\host-manager\META-INF\context.xml
+copy %tomcat_source_folder%\webapps\manager\META-INF\context.xml %tomcat_target_folder%\webapps\manager\META-INF\context.xml
 
 REM Licenses
 Set cert_folder=%tomcat_target_folder%\certs
@@ -31,3 +33,5 @@ md %cert_folder%
 )
 copy %license_tomcat_folder%\certs %cert_folder%
 
+REM existing applications
+xcopy %tomcat_source_folder%\conf\Catalina\localhost %tomcat_target_folder%\conf\Catalina\localhost /e
