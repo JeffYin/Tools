@@ -6,34 +6,29 @@
 node {
    def mvnHome
    stage('Preparation') { // for display purposes
-      dir('GlobalConfig') {
-       git branch: 'v.2018.04.00', url: 'git@gitswarm.powerschool.com:SRB-Trillium/mavenProjectConfig_GlobalConfig.git'
-      }
-       dir('frame-common') {
-        git branch: 'v.2018.04.00', url: 'git@gitswarm.powerschool.com:SRB-Trillium/eTWebFrame_frame-common.git'
-       }
-      
-      dir('frame-dao') {
-        git branch: 'v.2018.04.00', url: 'git@gitswarm.powerschool.com:SRB-Trillium/eTWebFrame_frame-dao.git'
-       }
+      def version="v.2019.07.00"
+      def modules = [
+         'GlobalConfig':"git@gitswarm.powerschool.com:SRB-Trillium/mavenProjectConfig_GlobalConfig.git",
+         'frame-common':'git@gitswarm.powerschool.com:SRB-Trillium/eTWebFrame_frame-common.git',
+         'frame-dao': 'git@gitswarm.powerschool.com:SRB-Trillium/eTWebFrame_frame-dao.git',
+         'frame-service':  'git@gitswarm.powerschool.com:SRB-Trillium/eTWebFrame_frame-service.git',
+         'frame-web':  'git@gitswarm.powerschool.com:SRB-Trillium/eTWebFrame_frame-web.git',
+         'frame-war': 'git@gitswarm.powerschool.com:SRB-Trillium/eTWebFrame_frame-war.git'
+       ]
+       mvnHome = tool 'M3'
        
-       dir('frame-service') {
-          git branch: 'v.2018.04.00', url: 'git@gitswarm.powerschool.com:SRB-Trillium/eTWebFrame_frame-service.git'
-       }
-      
-       dir('frame-web') {
-         git branch: 'v.2018.04.00', url: 'git@gitswarm.powerschool.com:SRB-Trillium/eTWebFrame_frame-web.git'
-       }
-      
-      dir('frame-war') {
-          git branch: 'v.2018.04.00', url: 'git@gitswarm.powerschool.com:SRB-Trillium/eTWebFrame_frame-war.git'
-       }
+       modules.each {folder, gitURL ->
+          dir(folder) { 
+                git branch: version, url: gitURL
+          }
+       }   
    }
 
-   stage('Build') { // 
+   stage('Build') {
     dir('GlobalConfig') {
-     // Run the maven build
-        sh "mvn clean install -U -Dmaven.test.skip=true -PbuildAllFrameComponent,backupFiles -DreleasedMainModule=frame-common -DbackupAllModules=frame-war"
+        withEnv(["MVN_HOME=$mvnHome"]) {
+        sh '"$MVN_HOME/bin/mvn" clean package -U -Dmaven.test.skip=true -PbuildAllFrameComponent'
+        }
     }
    }
 }
